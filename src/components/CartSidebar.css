@@ -1,0 +1,162 @@
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cart-sidebar {
+  background: #111;
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  padding: 2rem;
+  overflow-y: auto;
+  border-left: 8px solid #dc2626;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 4px solid #dc2626;
+}
+
+.cart-header h2 {
+  font-size: 2.8rem;
+  font-weight: 900;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 3.5rem;
+  cursor: pointer;
+}
+
+.empty-cart {
+  text-align: center;
+  font-size: 2rem;
+  color: #888;
+  margin-top: 8rem;
+}
+
+.cart-items {
+  margin-bottom: 2rem;
+}
+
+.cart-item {
+  background: #222;
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  border: 2px solid #333;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  display: block;
+  font-size: 1.4rem;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.item-price {
+  color: #aaa;
+  font-size: 1.2rem;
+}
+
+.item-right {
+  text-align: right;
+}
+
+.item-total {
+  font-size: 1.6rem;
+  color: #dc2626;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* BIG RED CROSS — GUARANTEED VISIBLE */
+.remove-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 20px rgba(220, 38, 38, 0.8);
+  transition: all 0.3s;
+}
+
+.remove-btn:hover {
+  background: #b91c1c;
+  transform: scale(1.2);
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 1);
+}
+
+.cart-summary {
+  border-top: 6px solid #dc2626;
+  padding-top: 2rem;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 2.8rem;
+  font-weight: 900;
+  margin-bottom: 2rem;
+}
+
+.total-amount {
+  color: #dc2626;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 1.8rem;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 18px;
+  font-size: 2.2rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.checkout-btn:hover {
+  background: #15803d;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cart-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  .item-right {
+    margin-top: 1rem;
+  }
+}
