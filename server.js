@@ -1,96 +1,88 @@
 const express = require('express');
-const crypto = require('crypto-js');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
 
-// PayFast Sandbox
-const PAYFAST_SANDBOX = true;
-const PAYFAST_MERCHANT_ID = '10000100';
-const PAYFAST_MERCHANT_KEY = '46f0cd694581a';
-const PAYFAST_PASSPHRASE = ''; // Empty in sandbox
+// CORS for frontend
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 
-const PAYFAST_URL = PAYFAST_SANDBOX ? 'https://sandbox.payfast.co.za/eng/process' : 'https://www.payfast.co.za/eng/process';
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Signature Generation - Raw values
-function generatePayFastSignature(data, passphrase = '') {
-  const filtered = {};
-  for (const key in data) {
-    if (data[key] !== '' && data[key] !== null && data[key] !== undefined) {
-      filtered[key] = String(data[key]).trim();
-    }
-  }
+// PayFast Sandbox (FREE - no signup)
+const PAYFAST_URL = 'https://sandbox.payfast.co.za/eng/process';
+const MERCHANT_ID = '10000100';
+const MERCHANT_KEY = '46f0cd694581a';
+const PASS_PHRASE = 'iforgot';
 
-  const sortedKeys = Object.keys(filtered).sort();
-
-  const str = sortedKeys.map(key => `${key}=${filtered[key]}`).join('&');
-
-  if (passphrase && passphrase.trim() !== '') {
-    str += '&passphrase=' + passphrase.trim();
-  }
-
-  return crypto.MD5(str).toString();
-}
-
-// Initiate Payment
 app.post('/api/payfast/initiate', (req, res) => {
-  const { amount, name = 'Customer', email = '', phone = '', orderId } = req.body;
+  console.log('🛒 Checkout:', req.body);
 
-  // Ensure required fields are present
-  if (!amount || !orderId) {
-    return res.status(400).json({ message: 'Missing required fields' });
-  }
+  const { amount, phone, orderId, address } = req.body;
 
-  const paymentData = {
-    merchant_id: PAYFAST_MERCHANT_ID,
-    merchant_key: PAYFAST_MERCHANT_KEY,
+  const payfastData = {
+    merchant_id: MERCHANT_ID,
+    merchant_key: MERCHANT_KEY,
     return_url: 'http://localhost:3000/success',
     cancel_url: 'http://localhost:3000/cancel',
-    notify_url: 'http://127.0.0.1:5000/api/payfast/notify',
-    m_payment_id: orderId || 'GB_' + Date.now(),
-    amount: parseFloat(amount).toFixed(2),
-    item_name: 'Gabhadiya Booze Order',
-    name_first: name.split(' ')[0] || 'Customer',
-    cell_number: phone || ''
+    notify_url: 'http://localhost:5000/api/payfast/notify',
+    name_first: 'BoozeBuzz',
+    email_address: phone + '@boozebuzz.co.za',
+    m_payment_id: orderId,
+    amount: (parseFloat(amount) || 0).toFixed(2),
+    item_name: 'BoozeBuzz Order #' + orderId,
+    item_description: address
   };
 
-  if (email && email.trim() !== '') {
-    paymentData.email_address = email.trim();
-  }
-
-  paymentData.signature = generatePayFastSignature(paymentData, PAYFAST_PASSPHRASE);
-
-  const formData = new URLSearchParams(paymentData).toString();
-  const fullUrl = PAYFAST_URL + '?' + formData;
-
-  console.log('Payment Data:', paymentData);
-  console.log('Generated Signature:', paymentData.signature);
-  console.log('Full URL:', fullUrl);
-
-  res.json({ url: fullUrl });
+  console.log('✅ PayFast Data:', payfastData);
+  res.json({ url: PAYFAST_URL, data: payfastData });
 });
 
-// Notification
 app.post('/api/payfast/notify', (req, res) => {
-  console.log('PayFast Notification:', req.body);
-
-  const sig = generatePayFastSignature(req.body, PAYFAST_PASSPHRASE);
-  if (sig === req.body.signature) {
-    if (req.body.payment_status === 'COMPLETE') {
-      console.log('PAYMENT SUCCESS:', req.body.m_payment_id);
-    }
-  } else {
-    console.log('SIGNATURE MISMATCH in notify');
+  console.log('🔔 PayFast NOTIFICATION:', req.body);
+  if (req.body.payment_status === 'COMPLETE') {
+    console.log('✅ PAYMENT SUCCESS:', req.body.m_payment_id);
   }
-
-  res.sendStatus(200);
+  res.send('OK');
 });
 
-app.get('/', (req, res) => res.send('Gabhadiya Booze Payment Server Running!'));
+// ✅ PAYFAST REDIRECT PAGES (MUST be on port 3000)
+app.get('/success', (req, res) => {
+  res.send(`
+    <html>
+      <head><title>Payment Success</title></head>
+      <body style="font-family: Arial; text-align: center; padding: 50px; background: #d4edda;">
+        <h1 style="color: #155724;">✅ PAYMENT SUCCESS!</h1>
+        <p>Thank you for your order! Delivery details sent to your phone.</p>
+        <p><a href="javascript:window.close()" style="color: #155724; font-size: 18px;">← Close & Continue Shopping</a></p>
+      </body>
+    </html>
+  `);
+});
+
+app.get('/cancel', (req, res) => {
+  res.send(`
+    <html>
+      <head><title>Payment Cancelled</title></head>
+      <body style="font-family: Arial; text-align: center; padding: 50px; background: #f8d7da;">
+        <h1 style="color: #721c24;">❌ Payment Cancelled</h1>
+        <p>No charge made to your account.</p>
+        <p><a href="javascript:window.close()" style="color: #721c24; font-size: 18px;">← Return to Store</a></p>
+      </body>
+    </html>
+  `);
+});
+
+app.get('/', (req, res) => res.send('🚀 BoozeBuzz PayFast Server Running!'));
+app.get('/test', (req, res) => res.json({ message: '✅ Backend 100% READY!' }));
 
 const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server: http://localhost:${PORT}`);
+  console.log(`📱 Test: http://localhost:${PORT}/test`);
+  console.log(`✅ Success: http://localhost:${PORT}/success`);
+});

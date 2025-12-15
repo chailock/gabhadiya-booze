@@ -9,3 +9,10 @@ public class GabhadiyaBoozeApplication {
         SpringApplication.run(GabhadiyaBoozeApplication.class, args);
     }
 }
+
+
+// Replace test credentials with real ones (free signup)
+//const MERCHANT_ID = 'YOUR_REAL_ID';
+       // const MERCHANT_KEY = 'YOUR_REAL_KEY';
+       // const PASS_PHRASE = 'YOUR_REAL_PASSPHRASE';
+       // const PAYFAST_URL = 'https://www.payfast.co.za/eng/process'; // Live URL
