@@ -18,7 +18,7 @@ export default function App() {
   const [showCart, setShowCart] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem('ageVerified'); // Remove this line when going live
+    localStorage.removeItem('ageVerified'); 
   }, []);
 
   const verifySAID = (id) => {
