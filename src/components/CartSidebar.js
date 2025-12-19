@@ -30,7 +30,7 @@ export default function CartSidebar({ items, total, onClose, onRemoveItem }) {
                       R {item.price * item.qty}
                     </div>
 
-                    {/* BIG RED CROSS - ALWAYS VISIBLE */}
+                    
                     <button 
                       className="remove-btn"
                       onClick={() => onRemoveItem(item.id)}
